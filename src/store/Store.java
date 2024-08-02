@@ -1,8 +1,10 @@
+package store;
+
 public class Store {
+
     private String storeCode;
     private String storeName;
     private Integer storeId;
-
 
     public String getStoreCode() {
         return storeCode;

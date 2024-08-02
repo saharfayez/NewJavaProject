@@ -1,8 +1,10 @@
+package item;
+
 public class Item {
+
     private String itemCode;
     private String itemName;
     private Integer itemId;
-
 
     public String getItemCode() {
         return itemCode;
