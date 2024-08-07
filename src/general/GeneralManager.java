@@ -25,6 +25,7 @@ public class GeneralManager<T> {
         StringBuilder insertQueryBuilder = new StringBuilder();
         insertQueryBuilder.append("INSERT INTO " + tableName + "(");
         for (int i = 0; i < columnNames.length; i++) {
+            columnNames[i].setAccessible(true);
             insertQueryBuilder.append(columnNames[i].getName() + ",");
         }
         insertQueryBuilder.deleteCharAt(insertQueryBuilder.length() - 1);
@@ -36,6 +37,9 @@ public class GeneralManager<T> {
         insertQueryBuilder.append(")");
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(insertQueryBuilder.toString());
+            for (int i = 0; i < columnNames.length; i++) {
+                preparedStatement.setObject(i + 1, columnNames[i].get(obj));
+            }
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -14,7 +14,7 @@ public class Main {
         Connection connection = ConnectionManager.getConnection();
 
         GeneralManager<Object> generalManager = new GeneralManager<>(connection);
-        Item itemObject = new Item("555" , "iriri" , 89);
+        Item itemObject = new Item("555" , "irir");
         generalManager.insert(itemObject);
         //generalManager.select(itemObject);
 
