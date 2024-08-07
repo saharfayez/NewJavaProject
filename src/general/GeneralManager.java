@@ -22,17 +22,20 @@ public class GeneralManager<T> {
         Class objClass = obj.getClass();
         String tableName = objClass.getSimpleName();
         Field[] columnNames = objClass.getDeclaredFields();
-        columnNames[0].setAccessible(true);
-        Object codeValue = columnNames[0].get(obj);
-        columnNames[1].setAccessible(true);
-        Object nameValue = columnNames[1].get(obj);
-        String firstColumnName = columnNames[0].getName();
-        String secondColumnName = columnNames[1].getName();
-        String insertSql = "insert into " + tableName + " (" + firstColumnName + ", " + secondColumnName + ")" + " values (?, ?)";
+        StringBuilder insertQueryBuilder = new StringBuilder();
+        insertQueryBuilder.append("INSERT INTO " + tableName + "(");
+        for (int i = 0; i < columnNames.length; i++) {
+            insertQueryBuilder.append(columnNames[i].getName() + ",");
+        }
+        insertQueryBuilder.deleteCharAt(insertQueryBuilder.length() - 1);
+        insertQueryBuilder.append(") VALUES (");
+        for (int i = 0; i < columnNames.length; i++) {
+            insertQueryBuilder.append("?,");
+        }
+        insertQueryBuilder.deleteCharAt(insertQueryBuilder.length() - 1);
+        insertQueryBuilder.append(")");
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(insertSql);
-            preparedStatement.setString(1, codeValue.toString());
-            preparedStatement.setString(2, nameValue.toString());
+            PreparedStatement preparedStatement = connection.prepareStatement(insertQueryBuilder.toString());
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();

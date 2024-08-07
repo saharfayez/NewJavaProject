@@ -15,8 +15,8 @@ public class Main {
 
         GeneralManager<Object> generalManager = new GeneralManager<>(connection);
         Item itemObject = new Item("555" , "iriri" , 89);
-        //generalManager.insert(itemObject);
-        generalManager.select(itemObject);
+        generalManager.insert(itemObject);
+        //generalManager.select(itemObject);
 
         StoreManager storeManager = new StoreManager(connection);
         ItemManager itemManager = new ItemManager(connection);
