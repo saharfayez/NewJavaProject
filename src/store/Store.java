@@ -11,10 +11,15 @@ public class Store {
         this.storeName = storeName;
         this.storeId = storeId;
     }
+    public Store (String storeCode, String storeName) {
+        this.storeCode = storeCode;
+        this.storeName = storeName;
+    }
 
     public Store() {
 
     }
+
 
     public String getStoreCode() {
         return storeCode;
