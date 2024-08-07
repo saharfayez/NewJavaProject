@@ -34,6 +34,7 @@ public class ItemManager {
             preparedStatement.setString(1, itemCode);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
+
                 item.setItemId(resultSet.getInt("itemId"));
                 item.setItemName(resultSet.getString("itemName"));
                 item.setItemCode(resultSet.getString("itemCode"));

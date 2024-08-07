@@ -14,8 +14,9 @@ public class Main {
         Connection connection = ConnectionManager.getConnection();
 
         GeneralManager<Object> generalManager = new GeneralManager<>(connection);
-        Item itemObject = new Item("688", "item10");
-        generalManager.insert(itemObject);
+        Item itemObject = new Item("555" , "iriri" , 89);
+        //generalManager.insert(itemObject);
+        generalManager.select(itemObject);
 
         StoreManager storeManager = new StoreManager(connection);
         ItemManager itemManager = new ItemManager(connection);
