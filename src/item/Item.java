@@ -6,6 +6,17 @@ public class Item {
     private String itemName;
     private Integer itemId;
 
+    public Item(String itemCode, String itemName, Integer itemId) {
+        this.itemCode = itemCode;
+        this.itemName = itemName;
+        this.itemId = itemId;
+    }
+    public Item(String itemCode, String itemName){
+        this.itemCode = itemCode;
+        this.itemName = itemName;
+    }
+    public Item(){}
+
     public String getItemCode() {
         return itemCode;
     }

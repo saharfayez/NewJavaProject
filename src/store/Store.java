@@ -6,6 +6,16 @@ public class Store {
     private String storeName;
     private Integer storeId;
 
+    public Store(String storeCode, String storeName, Integer storeId) {
+        this.storeCode = storeCode;
+        this.storeName = storeName;
+        this.storeId = storeId;
+    }
+
+    public Store() {
+
+    }
+
     public String getStoreCode() {
         return storeCode;
     }

@@ -1,4 +1,5 @@
 import connection.ConnectionManager;
+import general.GeneralManager;
 import item.Item;
 import item.ItemManager;
 import store.Store;
@@ -9,9 +10,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
         Connection connection = ConnectionManager.getConnection();
+
+        GeneralManager<Object> itemnn = new GeneralManager<>(connection);
+        Item i = new Item("688" , "item10");
+        itemnn.insert(i);
+
+
+
+
         StoreManager storeManager = new StoreManager(connection);
         ItemManager itemManager = new ItemManager(connection);
 
