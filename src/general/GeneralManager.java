@@ -1,14 +1,14 @@
 package general;
-import item.Item;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GeneralManager<T> {
 
@@ -19,53 +19,77 @@ public class GeneralManager<T> {
     }
 
     public void insert(T obj) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
-        Class objClass = obj.getClass();
+        Class<?> objClass = obj.getClass();
         String tableName = objClass.getSimpleName();
-        Field[] columnNames = objClass.getDeclaredFields();
-        StringBuilder insertQueryBuilder = new StringBuilder();
-        insertQueryBuilder.append("INSERT INTO " + tableName + "(");
-        for (int i = 0; i < columnNames.length; i++) {
-            columnNames[i].setAccessible(true);
-            insertQueryBuilder.append(columnNames[i].getName() + ",");
-        }
-        insertQueryBuilder.deleteCharAt(insertQueryBuilder.length() - 1);
-        insertQueryBuilder.append(") VALUES (");
-        for (int i = 0; i < columnNames.length; i++) {
-            insertQueryBuilder.append("?,");
-        }
-        insertQueryBuilder.deleteCharAt(insertQueryBuilder.length() - 1);
-        insertQueryBuilder.append(")");
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(insertQueryBuilder.toString());
-            for (int i = 0; i < columnNames.length; i++) {
-                preparedStatement.setObject(i + 1, columnNames[i].get(obj));
+        Field[] fields = objClass.getDeclaredFields();
+
+        String columnNames = Arrays.stream(fields).peek(field -> field.setAccessible(true)).map(Field::getName).collect(Collectors.joining(","));
+
+        String placeholders = String.join(",", Collections.nCopies(fields.length, "?"));
+
+        String insertQuery = new StringBuilder().append("INSERT INTO ").append(tableName).append(" (").append(columnNames).append(") VALUES (").append(placeholders).append(")").toString();
+
+        System.out.println(insertQuery);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            for (int i = 0; i < fields.length; i++) {
+                preparedStatement.setObject(i + 1, fields[i].get(obj));
             }
             preparedStatement.execute();
-        } catch (SQLException e) {
+        } catch (SQLException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
 
-//     public void select(T obj) throws IllegalAccessException {
-//
-//         Class objClass = obj.getClass();
-//         String tableName = objClass.getSimpleName();
-//         Field[] columnNames = objClass.getDeclaredFields();
-//         for (Field field : columnNames) {
-//             field.setAccessible(true);
-//             if (field.get(obj)!=null) {
-//                 String fieldName = field.getName();
-//                 String selectCodeSql = "select * from" + tableName + "where" + fieldName+ "= ?";
-//                 try {
-//                     PreparedStatement preparedStatement = connection.prepareStatement(selectCodeSql);
-//                     preparedStatement.setString(1, fieldName);
-//                     ResultSet resultSet = preparedStatement.executeQuery();
-//                     while (resultSet.next()) {
-//                     }
-//                 } catch (SQLException e) {
-//                     throw new RuntimeException(e);
-//                 }
-//             }
-//         }
-//     }
+    public List<T> select(T obj) throws IllegalAccessException, SQLException, InstantiationException {
+        Class objClass = obj.getClass();
+        String tableName = objClass.getSimpleName();
+        Field[] fields = objClass.getDeclaredFields();
+
+        List<Field> nonNullFields = Arrays.stream(fields).peek(field -> field.setAccessible(true)).filter(field -> {
+            try {
+                return field.get(obj) != null;
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }).collect(Collectors.toList());
+
+        String columnNames = Arrays.stream(fields)
+                .map(Field::getName)
+                .collect(Collectors.joining(","));
+
+        String whereClause = nonNullFields.stream()
+                .map(field -> field.getName() + " = ?")
+                .collect(Collectors.joining(" AND "));
+
+        String selectQuery = new StringBuilder()
+                .append("SELECT ")
+                .append(columnNames)
+                .append(" FROM ")
+                .append(tableName)
+                .append(" WHERE ")
+                .append(whereClause).toString();
+        PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
+        for (int i = 0; i < nonNullFields.size(); i++) {
+            try {
+                preparedStatement.setObject(i + 1, nonNullFields.get(i).get(obj));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        List<T> results = new ArrayList<>();
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+
+            Object object = objClass.newInstance();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                field.set(object, resultSet.getObject(field.getName()));
+            }
+            results.add((T) object);
+
+        }
+        return results;
+    }
 }

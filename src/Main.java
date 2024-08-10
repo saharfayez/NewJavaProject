@@ -4,19 +4,24 @@ import item.Item;
 import item.ItemManager;
 import store.Store;
 import store.StoreManager;
-
 import java.sql.*;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, SQLException, InstantiationException {
         Connection connection = ConnectionManager.getConnection();
 
         GeneralManager<Object> generalManager = new GeneralManager<>(connection);
-        Item itemObject = new Item("555" , "irir");
-        generalManager.insert(itemObject);
-        //generalManager.select(itemObject);
+        Item itemObject = new Item("555", null);
+        //  generalManager.insert(itemObject);
+        List<Object> listOfItems = generalManager.select(itemObject);
+
+        for (Object item : listOfItems) {
+            System.out.println(item);
+        }
+
+        System.out.println(listOfItems.size());
 
         StoreManager storeManager = new StoreManager(connection);
         ItemManager itemManager = new ItemManager(connection);
