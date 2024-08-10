@@ -82,12 +82,12 @@ public class GeneralManager<T> {
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
 
-            Object object = objClass.newInstance();
+            Object newObject = objClass.newInstance();
             for (Field field : fields) {
                 field.setAccessible(true);
-                field.set(object, resultSet.getObject(field.getName()));
+                field.set(newObject, resultSet.getObject(field.getName()));
             }
-            results.add((T) object);
+            results.add((T) newObject);
 
         }
         return results;
